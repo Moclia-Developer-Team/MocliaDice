@@ -1,0 +1,6 @@
+[submodule "extern/MocliaDiceCore"]
+	path = extern/MocliaDiceCore
+	url = https://github.com/Moclia-Developer-Team/MocliaDiceCore.git
+[submodule "extern/mirai-cpp"]
+	path = extern/mirai-cpp
+	url = https://github.com/cyanray/mirai-cpp.git
