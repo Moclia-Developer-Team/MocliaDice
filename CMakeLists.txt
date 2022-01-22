@@ -24,6 +24,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE MocliaDiceCore)
 target_compile_definitions(${PROJECT_NAME} PRIVATE MIRAICPP_STATICLIB)
 
 # gcc 要连接 pthread
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
 endif()
