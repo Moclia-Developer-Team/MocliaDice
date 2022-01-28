@@ -1,10 +1,13 @@
-#include <iostream>
 #include "mirai.h"
-#include "RollDiceUnit.h"
+#include "MocliaDiceCore.h"
+#include "GeneralUnit.h"
 
 using namespace std;
 using namespace Cyan;
 using namespace Moclia;
+
+MocliaDice::MocliaExp mexp;
+MocliaDice::MocliaCExp mcexp;
 
 int main()
 {
@@ -14,9 +17,6 @@ int main()
 #endif
 
     MiraiBot bot;
-    calc calcul;
-    tool dicetool;
-    exp_t expr;
     SessionOptions opts = SessionOptions().FromJsonFile("./connect.json");
 
     while (true)
@@ -42,27 +42,82 @@ int main()
                try
                {
                    string plain = gm.MessageChain.GetPlainText();
-                   wstring wplain;
-                   dicetool.sswConversion(plain,wplain);
-                   if (wplain.find(L".r") == 0 || wplain.find(L"。r") == 0)
+                   cout << gm.ToString() << endl;
+                   //wstring wplain;
+                   //MocliaDice::tool::stws(plain,wplain); // 转换为wstring便于find和substr
+//                   if (wplain.find(L".r") == 0 || wplain.find(L"。r") == 0)
+//                   {
+//                       wplain = wplain.substr(2,strlen(plain.c_str()) - 1);
+//                       MocliaDice::tool::wsts(wplain,plain); //转回string方便处理
+//                       mcexp.original = plain.c_str();
+//                       classicDiceUnit((char*&)mcexp.original,(char*&)mcexp.middleCalc,(char*&)mcexp.reason,mcexp.finalResult,(char*&)mcexp.exception);
+//                       mexp.original = mcexp.original;
+//                       mexp.middleCalc = mcexp.middleCalc;
+//                       mexp.reason = mcexp.reason;
+//                       mexp.finalResult = mcexp.finalResult;
+//                       mexp.exception = mcexp.exception;
+//                       //mexp = mcexp;
+////
+////                       if (!mexp.exception.empty())
+////                       {
+////                           gm.Reply(MessageChain().Plain("由于" + mexp.reason + "," + gm.Sender.MemberName + "掷骰出现错误：" + mexp.exception));
+////                           mexp.clear();
+////                           return;
+////                       }
+//                       gm.Reply(MessageChain().Plain("由于" + mexp.reason + "，" + gm.Sender.MemberName + "骰出了：" + mexp.original + "=" + to_string(mexp.finalResult)));
+//                       return;
+//                   }
+
+                   if (plain.find(".x") == 0)
                    {
-                       wplain = wplain.substr(2,strlen(plain.c_str()) - 1);
-                       dicetool.sswConversion(wplain,expr.original);
-                       calcul.expressionStandard(expr);
-                       if (!expr.exception.empty())
+                       plain = plain.substr(2,strlen(plain.c_str()) - 1);
+
+
+                       /*Moclia::exp_t d3xp;
+                       d3xp.original = plain;
+                       Moclia::DX3::addDice(d3xp);
+                       if (!d3xp.exception.empty())
                        {
-                           gm.Reply(MessageChain().Plain("由于" + expr.reason + "," + gm.Sender.MemberName + "掷骰出现错误：" + expr.exception));
-                           expr.clear();
+                           gm.Reply(MessageChain().Plain(d3xp.exception));
                            return;
                        }
-                       calcul.expressionCalculator(expr);
-                       gm.Reply(MessageChain().Plain("由于" + expr.reason + "，" + gm.Sender.MemberName + "骰出了：" + expr.original + "=" + expr.finalResult));
+                       gm.Reply(MessageChain().Plain(d3xp.finalResult));*/
+
+                       mcexp.original = plain.c_str();
+                       string a;
+                       a = "hello world";
+                       cout << a << endl;
+                       dx3AddDiceUnit((char*&)mcexp.original, (char*&)mcexp.iterationCalc, (char*&)mcexp.middleCalc, (char*&)mcexp.reason, mcexp.finalResult, (char*&)mcexp.exception);
+                       mexp.original = mcexp.original;
+                       mexp.iterationCalc = mcexp.iterationCalc;
+                       mexp.middleCalc = mcexp.middleCalc;
+                       mexp.reason = mcexp.reason;
+                       mexp.finalResult = mcexp.finalResult;
+                       mexp.exception = mcexp.exception;
+
+                       if (!mexp.exception.empty())
+                       {
+                           MessageChain me = MessageChain().Plain(mcexp.exception);
+                           cout << me.ToString() << endl;
+                           gm.Reply(me);
+                           return;
+                       }
+                       string sender = gm.Sender.MemberName;
+                       string msg = "由于" + mexp.reason + "，" + "骰出了：" + mexp.original + "=" + mexp.middleCalc + "=" + to_string(mexp.finalResult) + "\0";
+                       cout << msg << endl;
+                       MessageChain mc = MessageChain().Plain(mexp.finalResult);
+                       cout << mc.ToString() << endl;
+                       gm.Reply(mc);
                        return;
                    }
                }
                catch (const std::exception &ex)
                {
                    cout << ex.what() << endl;
+               }
+               catch (...)
+               {
+                   cout << "未被捕获的异常" << endl;
                }
             });
 
@@ -73,20 +128,24 @@ int main()
                 {
                     string plain = fm.MessageChain.GetPlainText();
                     wstring wplain;
-                    dicetool.sswConversion(plain,wplain);
+                    MocliaDice::tool::stws(plain,wplain); // 转换为wstring便于find和substr
                     if (wplain.find(L".r") == 0 || wplain.find(L"。r") == 0)
                     {
                         wplain = wplain.substr(2,strlen(plain.c_str()) - 1);
-                        dicetool.sswConversion(wplain,expr.original);
-                        calcul.expressionStandard(expr);
-                        if (!expr.exception.empty())
+                        MocliaDice::tool::wsts(wplain,plain); //转回string方便处理
+                        mcexp.original = plain.c_str();
+
+                        classicDiceUnit((char*&)mcexp.original,(char*&)mcexp.middleCalc,(char*&)mcexp.reason,mcexp.finalResult,(char*&)mcexp.exception);
+
+                        mexp = mcexp;
+
+                        if (!mexp.exception.empty())
                         {
-                            fm.Reply(MessageChain().Plain("由于" + expr.reason + "," + fm.Sender.NickName + "掷骰出现错误：" + expr.exception));
-                            expr.clear();
+                            fm.Reply(MessageChain().Plain("由于" + mexp.reason + "," + fm.Sender.NickName + "掷骰出现错误：" + mexp.exception));
+                            mexp.clear();
                             return;
                         }
-                        calcul.expressionCalculator(expr);
-                        fm.Reply(MessageChain().Plain("由于" + expr.reason + "，" + fm.Sender.NickName + "骰出了：" + expr.original + "=" + expr.finalResult));
+                        fm.Reply(MessageChain().Plain("由于" + mexp.reason + "，" + fm.Sender.NickName + "骰出了：" + mexp.original + "=" + to_string(mexp.finalResult)));
                         return;
                     }
                 }
